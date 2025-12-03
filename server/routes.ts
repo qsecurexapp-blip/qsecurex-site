@@ -740,40 +740,41 @@ app.use(
   });
 
   // Download macOS DMG (free tier) - one per user
-app.get("/api/download/macos-dmg", requireAuth, async (req, res) => {
-  try {
-    const userId = req.session.userId!;
+  app.get("/api/download/macos-dmg", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      
+      // Check if user already downloaded
+      const hasAlreadyDownloaded = await storage.hasUserDownloadedFree(userId);
+      if (hasAlreadyDownloaded) {
+        return res.status(403).json({ error: "You have already downloaded the free version. Please purchase a license for additional downloads." });
+      }
 
-    // 1. Check if user already downloaded
-    const hasDownloaded = await storage.hasUserDownloadedFree(userId);
-    if (hasDownloaded) {
-      return res.status(403).json({ 
-        error: "You already downloaded the free version. Only one free download per user." 
-      });
+      // Check if limit reached
+      const total = await storage.getTotalFreeDownloads();
+      if (total >= 20) {
+        return res.status(429).json({ error: "Free download limit reached. Please purchase a license." });
+      }
+
+      // Record free download
+      await storage.recordFreeDownload(userId, "macos");
+
+      // Check if we have a DMG file or serve a mock
+      const fs = await import("fs");
+      const path = await import("path");
+      const dmgPath = path.join(process.cwd(), "attached_assets", "QSecureX-macOS.dmg");
+      
+      if (fs.existsSync(dmgPath)) {
+        res.download(dmgPath, "QSecureX-macOS.dmg");
+      } else {
+        // Serve mock DMG file for demo
+        res.setHeader("Content-Type", "application/octet-stream");
+        res.setHeader("Content-Disposition", "attachment; filename=QSecureX-macOS.dmg");
+        res.send(Buffer.from("Mock DMG file for QSecureX macOS free trial"));
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
-
-    // 2. Check total free downloads
-    const total = await storage.getTotalFreeDownloads();
-    if (total >= 20) {
-      return res.status(429).json({ 
-        error: "Free download limit reached (20 downloads). Please purchase a license." 
-      });
-    }
-
-    // 3. Record the download
-    await storage.recordFreeDownload(userId, "macos");
-
-    // 4. Redirect to GitHub Release private DMG file
-    const downloadUrl =
-      "https://github.com/qsecurexapp-blip/qsecurex-site/releases/latest/download/QSecureX-Installer.dmg";
-
-    return res.redirect(downloadUrl);
-
-  } catch (error: any) {
-    console.error("DMG download error:", error);
-    return res.status(500).json({ error: "Failed to process download request." });
-  }
-});
-
+  });
   return httpServer;
 }
