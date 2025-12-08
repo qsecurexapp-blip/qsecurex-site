@@ -1,17 +1,18 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "@shared/schema";
 
 if (!process.env.DATABASE_URL) {
-  console.error("[DB] DATABASE_URL is missing");
-  process.exit(1);
+  console.error("[DB] DATABASE_URL missing");
 }
 
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }, // Required for Render
+  ssl: { rejectUnauthorized: false }, // required on Render
 });
 
 export const db = drizzle(pool, { schema });
 
-export const hasDatabase = true;
