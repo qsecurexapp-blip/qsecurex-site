@@ -3,6 +3,9 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "@shared/schema";
 
+// Make sure this is exported
+export const hasDatabase = !!process.env.DATABASE_URL;
+
 if (!process.env.DATABASE_URL) {
   console.error("[DB] DATABASE_URL missing");
 }
