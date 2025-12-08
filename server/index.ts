@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
@@ -14,16 +15,18 @@ declare module "http" {
   }
 }
 
+// Parse JSON + keep raw body (Razorpay)
 app.use(
   express.json({
     verify: (req, _res, buf) => {
       req.rawBody = buf;
     },
-  }),
+  })
 );
 
 app.use(express.urlencoded({ extended: false }));
 
+// Logging helper
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -35,26 +38,29 @@ export function log(message: string, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
+// API logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
+  let capturedJsonResponse: any = undefined;
+  const originalJson = res.json;
+
+  res.json = function (body) {
+    capturedJsonResponse = body;
+    return originalJson.apply(res, [body]);
   };
 
   res.on("finish", () => {
-    const duration = Date.now() - start;
     if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+      const duration = Date.now() - start;
+      let msg = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+
       if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+        msg += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
 
-      log(logLine);
+      log(msg);
     }
   });
 
@@ -64,17 +70,13 @@ app.use((req, res, next) => {
 (async () => {
   await registerRoutes(httpServer, app);
 
+  // Error handler
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
-    res.status(status).json({ message });
-    throw err;
+    console.error("SERVER ERROR:", err);
+    res.status(err.status || 500).json({ message: err.message || "Internal Server Error" });
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+  // Static or Vite dev
   if (process.env.NODE_ENV === "production") {
     serveStatic(app);
   } else {
@@ -82,24 +84,15 @@ app.use((req, res, next) => {
     await setupVite(httpServer, app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-// FIX: Define port first
-const port = parseInt(process.env.PORT || "5000", 10);
+  // ------------ IMPORTANT FOR RENDER --------------
 
-// FIX: Local uses 127.0.0.1, Render uses 0.0.0.0
-const host = process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1";
+  // Render assigns PORT automatically
+  const port = parseInt(process.env.PORT || "5000", 10);
 
-httpServer.listen(
-  {
-    port: port,
-    host: host,
-  },
-  () => {
+  // Render must use 0.0.0.0 — Local dev uses 127.0.0.1
+  const host = process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1";
+
+  httpServer.listen({ port, host }, () => {
     console.log(`🚀 Server running at http://${host}:${port}`);
-  }
-);
-
+  });
 })();
