@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
@@ -84,15 +86,20 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || "5000", 10);
-  httpServer.listen(
-    {
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
-    },
-    () => {
-      log(`serving on port ${port}`);
-    },
-  );
+// FIX: Define port first
+const port = parseInt(process.env.PORT || "5000", 10);
+
+// FIX: Local uses 127.0.0.1, Render uses 0.0.0.0
+const host = process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1";
+
+httpServer.listen(
+  {
+    port: port,
+    host: host,
+  },
+  () => {
+    console.log(`🚀 Server running at http://${host}:${port}`);
+  }
+);
+
 })();

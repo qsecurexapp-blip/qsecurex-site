@@ -25,7 +25,7 @@ import {
   freeLicenseRequests,
   adminSettings,
 } from "@shared/schema";
-import { db, hasDatabase } from "./db";
+import { db } from "./db";
 import { eq, desc, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
@@ -604,5 +604,5 @@ export class MemStorage implements IStorage {
 
   private adminSettingsMap: Map<string, string> = new Map();
 }
+export const storage = new DatabaseStorage(db);
 
-export const storage: IStorage = hasDatabase ? new DatabaseStorage() : new MemStorage();
