@@ -1,3 +1,4 @@
+import cors from "cors";
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import session from "express-session";
@@ -12,6 +13,7 @@ import nodemailer from "nodemailer";
 import { Dropbox } from "dropbox";
 import createMemoryStore from "memorystore";
 import Razorpay from "razorpay";
+
 
 declare module "express-session" {
   interface SessionData {
@@ -51,19 +53,28 @@ export async function registerRoutes(
     console.log("[session] Using in-memory session store (data will not persist)");
   }
 
-  app.use(
-    session({
-      store: sessionStore,
-      secret: process.env.SESSION_SECRET || "qsecurex-secret-key-change-in-production",
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        secure: process.env.NODE_ENV === "production",
-        httpOnly: true,
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-      },
-    })
-  );
+  app.set("trust proxy", 1);
+
+app.use(cors({
+  origin: "https://qsecurex-site.onrender.com",
+  credentials: true,
+}));
+
+app.use(
+  session({
+    store: sessionStore,
+    secret: process.env.SESSION_SECRET || "qsecurex-fallback-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: true,
+      httpOnly: true,
+      sameSite: "none",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    },
+  })
+);
+
 
   // Passport configuration
   app.use(passport.initialize());
