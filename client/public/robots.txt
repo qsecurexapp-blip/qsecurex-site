@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Block server routes (optional)
+Disallow: /api/
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://www.qsecurex.space/sitemap.xml
+
+# Crawl-delay (optional, prevents server overload)
+Crawl-delay: 1
