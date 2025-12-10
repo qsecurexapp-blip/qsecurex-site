@@ -1,12 +1,24 @@
 User-agent: *
 Allow: /
 
-# Block server routes (optional)
+# Block sensitive or backend routes
 Disallow: /api/
 Disallow: /admin/
+Disallow: /server/
+Disallow: /database/
+Disallow: /auth/
 
-# Sitemap
+# Allow important assets
+Allow: /public/
+Allow: /assets/
+Allow: /images/
+Allow: /favicon.png
+
+# Sitemap for faster indexing
 Sitemap: https://www.qsecurex.space/sitemap.xml
 
-# Crawl-delay (optional, prevents server overload)
+# Recommended to avoid server overload
 Crawl-delay: 1
+
+# Extra SEO signals (Google-friendly)
+Host: https://www.qsecurex.space
