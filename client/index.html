@@ -1,20 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- Basic Meta -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <title>QSecureX - Offline Privacy Vault | Your Data Under Your Control</title>
-    <meta name="description" content="QSecureX is the #1 rated offline privacy app. Military-grade AES-256 encryption that lives on your device, not on a server. No Cloud. No Tracking. Just Privacy." />
-    <meta name="keywords" content="privacy app, encryption, offline vault, secure storage, AES-256, data protection" />
-    <meta property="og:title" content="QSecureX - Offline Privacy Vault" />
-    <meta property="og:description" content="Military-grade encryption that lives on your device. No Cloud. No Tracking. Just Privacy." />
+
+    <!-- SEO Title -->
+    <title>QSecureX – Offline Encryption App | AES-256 Secure Vault for Files & Messages</title>
+
+    <!-- SEO Description -->
+    <meta
+      name="description"
+      content="QSecureX is the #1 offline encryption app for macOS & Windows. Protect files, messages, photos & personal data using AES-256 military-grade encryption. No cloud. No tracking. 100% private."
+    />
+
+    <!-- Keywords (Google ignores, but others use) -->
+    <meta
+      name="keywords"
+      content="offline encryption app, secure vault, AES-256 encryption, privacy app, secure file storage, encrypted chat, encrypted messages, zero-knowledge security, data protection tool, personal vault software"
+    />
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://www.qsecurex.space/" />
+
+    <!-- Open Graph (Facebook, LinkedIn, WhatsApp, Slack) -->
+    <meta property="og:title" content="QSecureX – Offline Encryption App for Total Privacy" />
+    <meta property="og:description" content="Secure files & messages with AES-256 military-grade encryption. No cloud. No tracking. Total offline privacy." />
+    <meta property="og:image" content="https://www.qsecurex.space/og-image.png" />
+    <meta property="og:url" content="https://www.qsecurex.space/" />
     <meta property="og:type" content="website" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta property="og:site_name" content="QSecureX" />
+
+    <!-- Extra OG for better previews -->
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter Meta -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="QSecureX – Offline Encryption Vault" />
+    <meta name="twitter:description" content="Your device. Your data. AES-256 encrypted. 100% offline privacy." />
+    <meta name="twitter:image" content="https://www.qsecurex.space/og-image.png" />
+    <meta name="twitter:site" content="@qsecurex" />
+
+    <!-- Apple / iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="QSecureX" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Android Chrome -->
+    <meta name="theme-color" content="#000000" />
+
+    <!-- =============================== -->
+    <!-- FONTS                           -->
+    <!-- =============================== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Razorpay -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <!-- =============================== -->
+    <!-- JSON-LD SCHEMAS FOR GOOGLE      -->
+    <!-- =============================== -->
+
+    <!-- Software App Schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "QSecureX",
+        "operatingSystem": "macOS, Windows",
+        "applicationCategory": "SecurityApplication",
+        "description": "Offline AES-256 encrypted vault for files, messages, and personal data. Zero cloud, zero tracking.",
+        "softwareVersion": "1.0.0",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "INR"
+        },
+        "url": "https://www.qsecurex.space",
+        "image": "https://www.qsecurex.space/og-image.png"
+      }
+    </script>
+
+    <!-- WebSite Schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "QSecureX",
+        "url": "https://www.qsecurex.space",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://www.qsecurex.space/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+
+    <!-- Navigation Schema (Sitelinks) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "itemListElement": [
+          { "@type": "SiteNavigationElement", "position": 1, "name": "Pricing", "url": "https://www.qsecurex.space/premium" },
+          { "@type": "SiteNavigationElement", "position": 2, "name": "Features", "url": "https://www.qsecurex.space/features" },
+          { "@type": "SiteNavigationElement", "position": 3, "name": "Download", "url": "https://www.qsecurex.space/download" },
+          { "@type": "SiteNavigationElement", "position": 4, "name": "About", "url": "https://www.qsecurex.space/about" }
+        ]
+      }
+    </script>
   </head>
+
   <body class="dark">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
