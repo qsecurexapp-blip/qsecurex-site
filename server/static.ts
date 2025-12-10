@@ -16,4 +16,13 @@ export function serveStatic(app: Express) {
   app.use("*", (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });
+  app.get("/sitemap.xml", (_, res) => {
+  res.setHeader("Content-Type", "application/xml");
+  res.sendFile("sitemap.xml", { root: "./dist/public" });
+});
+app.get("/robots.txt", (_, res) => {
+  res.setHeader("Content-Type", "text/plain");
+  res.sendFile("robots.txt", { root: "./dist/public" });
+});
+
 }
