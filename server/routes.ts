@@ -13,6 +13,9 @@ import nodemailer from "nodemailer";
 import { Dropbox } from "dropbox";
 import createMemoryStore from "memorystore";
 import Razorpay from "razorpay";
+import path from "path";
+import fs from "fs";
+import express from "express";
 
 
 declare module "express-session" {
@@ -29,6 +32,33 @@ function generateLicenseKey(): string {
     );
   }
   return segments.join("-");
+}
+
+export function serveStatic(app: Express) {
+  const distPath = path.resolve(__dirname, "public");
+  if (!fs.existsSync(distPath)) {
+    throw new Error(`Build directory missing: ${distPath}`);
+  }
+
+  // Serve static files
+  app.use(express.static(distPath));
+
+  // Serve sitemap BEFORE wildcard
+  app.get("/sitemap.xml", (req, res) => {
+    res.setHeader("Content-Type", "application/xml");
+    res.sendFile(path.join(distPath, "sitemap.xml"));
+  });
+
+  // Serve robots BEFORE wildcard
+  app.get("/robots.txt", (req, res) => {
+    res.setHeader("Content-Type", "text/plain");
+    res.sendFile(path.join(distPath, "robots.txt"));
+  });
+
+  // Wildcard fallback
+  app.use("*", (_req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
+  });
 }
 
 export async function registerRoutes(
