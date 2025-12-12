@@ -90,6 +90,8 @@ export async function registerRoutes(
   // Define allowed origins (Render + Localhost + IP)
   const allowedOrigins = [
     "https://qsecurex-site.onrender.com",
+    "https://www.qsecurex.space",
+    "https://qsecurex.space",
     "http://localhost:5000",
     "http://localhost:3000",
     "http://127.0.0.1:5000",
