@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Crown, Sparkles, Building2, Plus, ArrowRight, Download, Apple, AlertCircle, X, Check, AlertTriangle } from "lucide-react";
+import { CheckCircle, Crown, Sparkles, Building2, Plus, ArrowRight, Download, Apple, AlertCircle, X, Check, AlertTriangle, ShieldCheck, Gem, Lock } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
@@ -347,7 +347,7 @@ export default function PremiumPage() {
       </section>
 
       {/* Plan Comparison Table */}
-      <section className="py-20 bg-card">
+      <section className="py-20 bg-card border-b">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold mb-4">
@@ -448,7 +448,7 @@ export default function PremiumPage() {
                   <TableHead className="w-[160px]">Feature</TableHead>
                   <TableHead className="text-center">
                     <div className="flex items-center justify-center gap-1">
-                      QSecureX <span className="text-xs">🇮🇳</span>
+                      QSecureX <span className="text-xs"></span>
                     </div>
                   </TableHead>
                   <TableHead className="text-center">NordLocker</TableHead>
@@ -500,19 +500,95 @@ export default function PremiumPage() {
         </div>
       </section>
 
-      {/* Money Back Guarantee */}
-      <section className="py-20 bg-card">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center justify-center p-4 rounded-full bg-primary/10 mb-6">
-            <CheckCircle className="h-12 w-12 text-primary" />
+      {/* Pricing & Privacy Promise */}
+      <section className="py-24 bg-card">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              Our Pricing & Privacy Promise
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              We believe you should own your security tools, not rent them.
+            </p>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4">
-            30-Day Money-Back Guarantee
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Not satisfied? Get a full refund within 30 days of purchase, no
-            questions asked. We're confident you'll love QSecureX.
-          </p>
+
+          <div className="grid md:grid-cols-2 gap-12">
+            {/* Privacy Section */}
+            <div className="space-y-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Lock className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-2xl font-semibold">🔒 Privacy First</h3>
+              </div>
+              <ul className="space-y-6">
+                <li className="flex gap-4">
+                  <Check className="h-6 w-6 text-primary shrink-0" />
+                  <div>
+                    <p className="font-bold">Zero-Data Collection</p>
+                    <p className="text-muted-foreground text-sm">We do not track your usage, log your IP, or see your files.</p>
+                  </div>
+                </li>
+                <li className="flex gap-4">
+                  <Check className="h-6 w-6 text-primary shrink-0" />
+                  <div>
+                    <p className="font-bold">Offline Activation</p>
+                    <p className="text-muted-foreground text-sm">Your license works without a constant internet connection.</p>
+                  </div>
+                </li>
+                <li className="flex gap-4">
+                  <Check className="h-6 w-6 text-primary shrink-0" />
+                  <div>
+                    <p className="font-bold">No Ads, No Upsells</p>
+                    <p className="text-muted-foreground text-sm">We never sell user data to advertisers.</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            {/* Ownership Section */}
+            <div className="space-y-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Gem className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-2xl font-semibold">💎 Ownership Model</h3>
+              </div>
+              <ul className="space-y-6">
+                <li className="flex gap-4">
+                  <Check className="h-6 w-6 text-primary shrink-0" />
+                  <div>
+                    <p className="text-lg">
+                      <span className="font-bold text-green-600 dark:text-green-400">One-Time Purchase</span>
+                    </p>
+                    <p className="text-muted-foreground text-sm">Pay once, keep it forever.</p>
+                  </div>
+                </li>
+                <li className="flex gap-4">
+                  <Check className="h-6 w-6 text-primary shrink-0" />
+                  <div>
+                    <p className="text-lg">
+                      <span className="font-bold text-green-600 dark:text-green-400">No Subscriptions</span>
+                    </p>
+                    <p className="text-muted-foreground text-sm">You will never see a recurring charge from us.</p>
+                  </div>
+                </li>
+                <li className="flex gap-4">
+                  <Check className="h-6 w-6 text-primary shrink-0" />
+                  <div>
+                    <p className="font-bold">Device Freedom</p>
+                    <p className="text-muted-foreground text-sm">Use your license on your primary Mac.</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-20 text-center border-t border-border pt-12">
+            <p className="text-2xl font-bold tracking-tight text-foreground">
+              Simple. Secure. Yours.
+            </p>
+          </div>
         </div>
       </section>
     </div>

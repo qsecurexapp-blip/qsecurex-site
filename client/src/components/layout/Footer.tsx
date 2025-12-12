@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Shield, Mail, Globe } from "lucide-react";
+import { Shield, Mail } from "lucide-react";
 import logoImage from "@assets/app_icon_1024_1764268476863.png";
 import { useAuth } from "@/lib/auth";
 
@@ -48,7 +48,7 @@ export function Footer() {
             <p className="text-sm text-muted-foreground mb-4">
               Military-grade encryption that lives on your device. No Cloud. No Tracking. Just Privacy.
             </p>
-            <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+            <div className="flex flex-col gap-4 text-sm text-muted-foreground">
               <a
                 href="mailto:qsecurexapp@gmail.com"
                 className="flex items-center gap-2 hover:text-primary transition-colors"
@@ -56,6 +56,22 @@ export function Footer() {
               >
                 <Mail className="h-4 w-4" />
                 qsecurexapp@gmail.com
+              </a>
+
+              {/* Product Hunt Badge */}
+              <a 
+                href="https://www.producthunt.com/products/qsecurex?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-qsecurex" 
+                target="_blank" 
+                rel="noreferrer"
+                className="mt-2 block"
+              >
+                <img 
+                  src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1049222&theme=light&t=1765510913089" 
+                  alt="QSecureX - Product Hunt" 
+                  style={{ width: '250px', height: '54px' }} 
+                  width="250" 
+                  height="54" 
+                />
               </a>
             </div>
           </div>
