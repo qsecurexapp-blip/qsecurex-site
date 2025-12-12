@@ -17,7 +17,6 @@ import path from "path";
 import fs from "fs";
 import express from "express";
 
-
 declare module "express-session" {
   interface SessionData {
     userId: string;
@@ -85,26 +84,46 @@ export async function registerRoutes(
 
   app.set("trust proxy", 1);
 
-app.use(cors({
-  origin: "https://qsecurex-site.onrender.com",
-  credentials: true,
-}));
+  // --- MIDDLEWARE CONFIGURATION ---
+  const isProduction = process.env.NODE_ENV === "production";
+  
+  // Define allowed origins (Render + Localhost + IP)
+  const allowedOrigins = [
+    "https://qsecurex-site.onrender.com",
+    "http://localhost:5000",
+    "http://localhost:3000",
+    "http://127.0.0.1:5000",
+    "http://127.0.0.1:3000"  
+  ];
 
-app.use(
-  session({
-    store: sessionStore,
-    secret: process.env.SESSION_SECRET || "qsecurex-fallback-secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: true,
-      httpOnly: true,
-      sameSite: "none",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
+  app.use(cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("Blocked Origin:", origin);
+        callback(new Error('Not allowed by CORS'));
+      }
     },
-  })
-);
+    credentials: true,
+  }));
 
+  app.use(
+    session({
+      store: sessionStore,
+      secret: process.env.SESSION_SECRET || "qsecurex-fallback-secret",
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        // "false" on localhost (lets you log in), "true" on Render (secure)
+        secure: isProduction, 
+        httpOnly: true,
+        sameSite: isProduction ? "none" : "lax", 
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      },
+    })
+  );
+  // --- END MIDDLEWARE ---
 
   // Passport configuration
   app.use(passport.initialize());
@@ -971,7 +990,7 @@ app.use(
     }
   });
 
-  // ========== DOWNLOAD ROUTES ==========
+  // ========== DOWNLOAD ROUTES (FIXED DROPBOX LOGIC) ==========
 
   // Get remaining free downloads
   app.get("/api/download/remaining", async (req, res) => {
@@ -1004,187 +1023,243 @@ app.use(
   app.get("/api/download/check-eligibility", requireAuth, async (req, res) => {
     try {
       const userId = req.session.userId!;
-      
-      // Check if downloads are disabled by admin
-      const downloadEnabled = await storage.getAdminSetting("free_download_enabled");
-      if (downloadEnabled === "false") {
-        return res.json({ eligible: false, reason: "Free downloads are currently disabled." });
+      const hasDownloaded = await storage.hasUserDownloadedFree(userId);
+      if (hasDownloaded) {
+        return res.json({ eligible: false, reason: "Already downloaded" });
       }
-      
-      const hasAlreadyDownloaded = await storage.hasUserDownloadedFree(userId);
-      if (hasAlreadyDownloaded) {
-        return res.json({ eligible: false, reason: "You have already downloaded the free version. Please purchase a license for additional downloads." });
-      }
-
-      const total = await storage.getTotalFreeDownloads();
-      if (total >= 20) {
-        return res.json({ eligible: false, reason: "Free download limit reached. Please purchase a license." });
-      }
-
       res.json({ eligible: true });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   });
 
-  // Download macOS DMG (free tier) - one per user
+  // 1. FREE DOWNLOAD (Refreshed Token Fix)
   app.get("/api/download/macos-dmg", requireAuth, async (req, res) => {
     try {
       const userId = req.session.userId!;
       
-      // Check if downloads are disabled by admin
       const downloadEnabled = await storage.getAdminSetting("free_download_enabled");
-      if (downloadEnabled === "false") {
-        return res.status(403).json({ error: "Free downloads are currently disabled." });
-      }
+      if (downloadEnabled === "false") return res.status(403).json({ error: "Downloads disabled" });
       
-      // Check if user already downloaded
       const hasAlreadyDownloaded = await storage.hasUserDownloadedFree(userId);
-      if (hasAlreadyDownloaded) {
-        return res.status(403).json({ error: "You have already downloaded the free version. Please purchase a license for additional downloads." });
-      }
+      if (hasAlreadyDownloaded) return res.status(403).json({ error: "Already downloaded" });
 
-      // Check if limit reached
       const total = await storage.getTotalFreeDownloads();
-      if (total >= 20) {
-        return res.status(429).json({ error: "Free download limit reached. Please purchase a license." });
-      }
+      if (total >= 20) return res.status(429).json({ error: "Limit reached" });
 
-      // Record free download
       await storage.recordFreeDownload(userId, "macos");
 
-      // Get temporary download link from Dropbox
-      const dropboxAccessToken = process.env.DROPBOX_ACCESS_TOKEN;
-      if (!dropboxAccessToken) {
-        return res.status(500).json({ error: "Download service not configured" });
+      // ✅ FIX: Check for Refresh Token, NOT Access Token
+      if (!process.env.DROPBOX_REFRESH_TOKEN || !process.env.DROPBOX_CLIENT_ID) {
+        console.error("Missing Dropbox Credentials");
+        return res.status(500).json({ error: "Download service configuration error" });
       }
 
-      const dbx = new Dropbox({ accessToken: dropboxAccessToken });
+      const dbx = new Dropbox({ 
+        clientId: process.env.DROPBOX_CLIENT_ID,
+        clientSecret: process.env.DROPBOX_CLIENT_SECRET,
+        refreshToken: process.env.DROPBOX_REFRESH_TOKEN 
+      });
       
-      // Try the configured path first, then fallback to relative path (for App Folder permission)
-      const configuredPath = process.env.DROPBOX_FREE_FILE_PATH || "/Apps/QSecureX_Storage/QSecureX.dmg";
-      const relativePath = "/QSecureX.dmg"; // For App Folder scoped access
+      const configuredPath = process.env.DROPBOX_FREE_FILE_PATH || "/QSecureX.dmg";
+      const fallbackPath = "/QSecureX.dmg";
       
-      console.log("[Download] Free - Attempting to get temporary link for:", configuredPath);
+      console.log("[Download] Free - Attempting primary path:", configuredPath);
       
       try {
         const response = await dbx.filesGetTemporaryLink({ path: configuredPath });
-        console.log("[Download] Free - Got temporary link successfully");
         return res.redirect(response.result.link);
       } catch (firstError: any) {
-        console.log("[Download] Free - First path failed, trying relative path:", relativePath);
+        console.log("[Download] Primary path failed, trying fallback:", fallbackPath);
         try {
-          const response = await dbx.filesGetTemporaryLink({ path: relativePath });
-          console.log("[Download] Free - Got temporary link with relative path");
+          const response = await dbx.filesGetTemporaryLink({ path: fallbackPath });
           return res.redirect(response.result.link);
         } catch (secondError: any) {
-          console.error("Dropbox Free download error (both paths failed):", secondError);
-          return res.status(500).json({ error: secondError.error?.error_summary || "Download failed - file not found in Dropbox" });
+          console.error("Dropbox Error:", JSON.stringify(secondError.error || secondError));
+          return res.status(500).json({ error: "File not found in Dropbox. Please check .env paths." });
         }
       }
     } catch (error: any) {
-      console.error("Dropbox download error:", error);
-      res.status(500).json({ error: error.message || "Download failed" });
+      console.error("Download Error:", error);
+      res.status(500).json({ error: error.message });
     }
   });
 
-  // Download macOS DMG (Personal Edition) - requires Personal license purchase
+  // 2. PERSONAL DOWNLOAD (Refreshed Token Fix)
   app.get("/api/download/macos-personal", requireAuth, async (req, res) => {
     try {
       const userId = req.session.userId!;
       
-      // Check if user has a Personal license
       const licenses = await storage.getLicensesByUserId(userId);
       const hasPersonalLicense = licenses.some(l => l.plan === "personal" && l.status === "active");
       
       if (!hasPersonalLicense) {
-        return res.status(403).json({ error: "Personal license required. Please purchase a Personal Edition license to download." });
+        return res.status(403).json({ error: "Personal license required." });
       }
 
-      // Get temporary download link from Dropbox for Personal version
-      const dropboxAccessToken = process.env.DROPBOX_ACCESS_TOKEN;
-      if (!dropboxAccessToken) {
+      // ✅ FIX: Check for Refresh Token
+      if (!process.env.DROPBOX_REFRESH_TOKEN || !process.env.DROPBOX_CLIENT_ID) {
         return res.status(500).json({ error: "Download service not configured" });
       }
 
-      const dbx = new Dropbox({ accessToken: dropboxAccessToken });
+      const dbx = new Dropbox({ 
+        clientId: process.env.DROPBOX_CLIENT_ID,
+        clientSecret: process.env.DROPBOX_CLIENT_SECRET,
+        refreshToken: process.env.DROPBOX_REFRESH_TOKEN 
+      });
       
-      // Try the configured path first, then fallback to relative path (for App Folder permission)
-      const configuredPath = process.env.DROPBOX_PERSONAL_FILE_PATH || "/Apps/QSecureX_Storage/QSecureX.dmg";
-      const relativePath = "/QSecureX.dmg"; // For App Folder scoped access
+      const configuredPath = process.env.DROPBOX_PERSONAL_FILE_PATH || "/QSecureX.dmg";
+      const fallbackPath = "/QSecureX.dmg";
       
-      console.log("[Download] Personal - Attempting to get temporary link for:", configuredPath);
+      console.log("[Download] Personal - Attempting path:", configuredPath);
       
       try {
         const response = await dbx.filesGetTemporaryLink({ path: configuredPath });
-        console.log("[Download] Personal - Got temporary link successfully");
         return res.redirect(response.result.link);
       } catch (firstError: any) {
-        console.log("[Download] Personal - First path failed, trying relative path:", relativePath);
+        console.log("[Download] Primary path failed, trying fallback:", fallbackPath);
         try {
-          const response = await dbx.filesGetTemporaryLink({ path: relativePath });
-          console.log("[Download] Personal - Got temporary link with relative path");
+          const response = await dbx.filesGetTemporaryLink({ path: fallbackPath });
           return res.redirect(response.result.link);
         } catch (secondError: any) {
-          console.error("Dropbox Personal download error (both paths failed):", secondError);
-          console.error("Error details:", JSON.stringify(secondError, null, 2));
-          return res.status(500).json({ error: secondError.error?.error_summary || secondError.message || "Download failed - file not found in Dropbox" });
+          console.error("Dropbox Error:", JSON.stringify(secondError.error || secondError));
+          return res.status(500).json({ error: "File not found in Dropbox." });
         }
       }
     } catch (error: any) {
-      console.error("Dropbox Personal download error:", error);
-      res.status(500).json({ error: error.message || "Download failed" });
+      console.error("Download Error:", error);
+      res.status(500).json({ error: error.message });
     }
   });
 
-  // Download macOS DMG (Pro Edition) - requires Pro license purchase
+  // 3. PRO DOWNLOAD (Refreshed Token Fix)
   app.get("/api/download/macos-pro", requireAuth, async (req, res) => {
     try {
       const userId = req.session.userId!;
       
-      // Check if user has a Pro license
       const licenses = await storage.getLicensesByUserId(userId);
       const hasProLicense = licenses.some(l => l.plan === "pro" && l.status === "active");
       
       if (!hasProLicense) {
-        return res.status(403).json({ error: "Pro license required. Please purchase a Pro Edition license to download." });
+        return res.status(403).json({ error: "Pro license required." });
       }
 
-      // Get temporary download link from Dropbox for Pro version
-      const dropboxAccessToken = process.env.DROPBOX_ACCESS_TOKEN;
-      if (!dropboxAccessToken) {
+      // ✅ FIX: Check for Refresh Token
+      if (!process.env.DROPBOX_REFRESH_TOKEN || !process.env.DROPBOX_CLIENT_ID) {
         return res.status(500).json({ error: "Download service not configured" });
       }
 
-      const dbx = new Dropbox({ accessToken: dropboxAccessToken });
+      const dbx = new Dropbox({ 
+        clientId: process.env.DROPBOX_CLIENT_ID,
+        clientSecret: process.env.DROPBOX_CLIENT_SECRET,
+        refreshToken: process.env.DROPBOX_REFRESH_TOKEN 
+      });
       
-      // Try the configured path first, then fallback to relative path (for App Folder permission)
-      const configuredPath = process.env.DROPBOX_PRO_FILE_PATH || "/Apps/QSecureX_Storage/QSecureX-Installer.dmg";
-      const relativePath = "/QSecureX-Installer.dmg"; // For App Folder scoped access
+      const configuredPath = process.env.DROPBOX_PRO_FILE_PATH || "/QSecureX-Installer.dmg";
+      const fallbackPath = "/QSecureX-Installer.dmg";
       
-      console.log("[Download] Pro - Attempting to get temporary link for:", configuredPath);
+      console.log("[Download] Pro - Attempting path:", configuredPath);
       
       try {
         const response = await dbx.filesGetTemporaryLink({ path: configuredPath });
-        console.log("[Download] Pro - Got temporary link successfully");
         return res.redirect(response.result.link);
       } catch (firstError: any) {
-        console.log("[Download] Pro - First path failed, trying relative path:", relativePath);
+        console.log("[Download] Primary path failed, trying fallback:", fallbackPath);
         try {
-          const response = await dbx.filesGetTemporaryLink({ path: relativePath });
-          console.log("[Download] Pro - Got temporary link with relative path");
+          const response = await dbx.filesGetTemporaryLink({ path: fallbackPath });
           return res.redirect(response.result.link);
         } catch (secondError: any) {
-          console.error("Dropbox Pro download error (both paths failed):", secondError);
-          console.error("Error details:", JSON.stringify(secondError, null, 2));
-          return res.status(500).json({ error: secondError.error?.error_summary || secondError.message || "Download failed - file not found in Dropbox" });
+          console.error("Dropbox Error:", JSON.stringify(secondError.error || secondError));
+          return res.status(500).json({ error: "File not found in Dropbox." });
         }
       }
     } catch (error: any) {
-      console.error("Dropbox Pro download error:", error);
-      res.status(500).json({ error: error.message || "Download failed" });
+      console.error("Download Error:", error);
+      res.status(500).json({ error: error.message });
     }
   });
 
+  // --- TOKEN GENERATOR TOOL ---
+  // Access this route to fix your invalid_request error
+  // Usage: http://localhost:5000/api/debug/generate-token?code=PASTE_CODE_HERE
+  app.get("/api/debug/generate-token", async (req, res) => {
+    try {
+      const { code } = req.query;
+      if (!code) {
+        return res.send(`
+          <h1>Dropbox Token Generator</h1>
+          <p>1. Go here: <a href="https://www.dropbox.com/oauth2/authorize?client_id=${process.env.DROPBOX_CLIENT_ID}&token_access_type=offline&response_type=code" target="_blank">Authorize App</a></p>
+          <p>2. Copy the code you get.</p>
+          <p>3. Paste it in the URL like this: <code>/api/debug/generate-token?code=YOUR_CODE</code></p>
+        `);
+      }
+
+      const clientId = process.env.DROPBOX_CLIENT_ID; 
+      const clientSecret = process.env.DROPBOX_CLIENT_SECRET;
+
+      if (!clientId || !clientSecret) return res.send("Error: Client ID/Secret missing in .env");
+
+      const response = await fetch("https://api.dropbox.com/oauth2/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          code: code as string,
+          grant_type: "authorization_code",
+          client_id: clientId,
+          client_secret: clientSecret,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.error) {
+        return res.json({ 
+          status: "FAILED", 
+          message: "Dropbox rejected this code.", 
+          dropbox_error: data,
+          check_this: "Is your Client Secret in .env correct?" 
+        });
+      }
+
+      res.json({
+        status: "SUCCESS",
+        message: "Here is your NEW, WORKING Refresh Token. Copy this into your .env file immediately!",
+        NEW_REFRESH_TOKEN: data.refresh_token
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+// --- DEBUG ROUTE: LIST FILES ---
+  // Access this at: http://127.0.0.1:5000/api/debug/dropbox-list
+  app.get("/api/debug/dropbox-list", async (req, res) => {
+    try {
+      if (!process.env.DROPBOX_REFRESH_TOKEN) {
+        return res.json({ error: "No Refresh Token in .env" });
+      }
+
+      const dbx = new Dropbox({ 
+        clientId: process.env.DROPBOX_CLIENT_ID,
+        clientSecret: process.env.DROPBOX_CLIENT_SECRET,
+        refreshToken: process.env.DROPBOX_REFRESH_TOKEN 
+      });
+      
+      // List files in the root folder
+      const response = await dbx.filesListFolder({ path: "" });
+      
+      const files = response.result.entries.map(entry => ({
+        name: entry.name,
+        path_display: entry.path_display, // <--- THIS is what you need for .env
+        type: entry['.tag'] // file or folder?
+      }));
+
+      res.json({ 
+        message: "SUCCESS: Connected to Dropbox!",
+        files: files 
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || error });
+    }
+  });
   return httpServer;
 }
