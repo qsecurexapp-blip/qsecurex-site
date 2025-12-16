@@ -23,7 +23,7 @@ const values = [
   },
   {
     title: "Security by Design",
-    description: "Industry standard algorithms vetted by professionals.",
+    description: "Industry-standard cryptographic algorithms widely reviewed by the security community.",
     icon: Shield,
   },
 ];
@@ -50,9 +50,7 @@ export default function AboutPage() {
               <span className="gradient-text">Respects Your Privacy</span>
             </h1>
             <p className="text-xl text-muted-foreground">
-              QSecureX is an independent security vault application designed to
-              give you complete control over your sensitive data—without
-              subscriptions, cloud dependencies, or compromises.
+              QSecureX is an independent, offline encryption software designed to give you complete control over data on your own device — without subscriptions, cloud dependencies, or compromises.
             </p>
           </div>
         </div>
