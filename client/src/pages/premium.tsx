@@ -32,7 +32,7 @@ const plans = [
     originalPrice: 3499,
     popular: false,
     features: [
-      "500 MB vault storage",
+      "500 MB local encrypted capacity",
       "1 Device license",
       "AES-256 encryption",
       "24 Hours audit logs",
@@ -49,12 +49,12 @@ const plans = [
     originalPrice: 9999,
     popular: true,
     features: [
-      "Unlimited vault storage",
+      "Unlimited local encrypted capacity",
       "3 Device licenses",
       "AES-256 encryption",
       "Secure Notes (Unlimited)",
-      "Tamper Alerts included",
-      "Secure Messaging included",
+      "Tamper Alerts",
+      "Encrypted Message Transfer (Local / P2P)",
       "Full History audit logs",
       "Priority support",
     ],
@@ -68,12 +68,12 @@ const plans = [
     originalPrice: 0,
     popular: false,
     features: [
-      "Unlimited storage",
+      "Unlimited local encrypted capacity",
       "Bulk licensing",
       "AES-256 encryption",
       "Secure Notes (Unlimited)",
       "Tamper Alerts included",
-      "Secure Messaging included",
+      "Encrypted Message Transfer (Local / P2P)",
       "Full History audit logs",
       "Dedicated support agent",
     ],
@@ -103,7 +103,7 @@ const competitorData = [
   { feature: "Secure Notes", qsecurex: { text: "Yes", status: "good" }, nordlocker: { text: "No", status: "bad" }, cryptomator: { text: "No", status: "bad" }, veracrypt: { text: "No", status: "bad" } },
   { feature: "Secure Messaging", qsecurex: { text: "Yes", status: "good" }, nordlocker: { text: "No", status: "bad" }, cryptomator: { text: "No", status: "bad" }, veracrypt: { text: "No", status: "bad" } },
   { feature: "Audit Logs", qsecurex: { text: "Full History", status: "good" }, nordlocker: { text: "Limited", status: "bad" }, cryptomator: { text: "No", status: "bad" }, veracrypt: { text: "No", status: "bad" } },
-  { feature: "Device Binding", qsecurex: { text: "Hardware ID", status: "good" }, nordlocker: { text: "Login based", status: "bad" }, cryptomator: { text: "No", status: "bad" }, veracrypt: { text: "No", status: "bad" } },
+  { feature: "Device Binding", qsecurex: { text: "Local Hardware Identifier (No Tracking)", status: "good" }, nordlocker: { text: "Login based", status: "bad" }, cryptomator: { text: "No", status: "bad" }, veracrypt: { text: "No", status: "bad" } },
   { feature: "Support", qsecurex: { text: "Priority", status: "good" }, nordlocker: { text: "Standard", status: "good" }, cryptomator: { text: "Community", status: "warn" }, veracrypt: { text: "Community", status: "warn" } },
 ];
 
@@ -120,9 +120,9 @@ const addons = [
     description: "Custom features built only for you",
   },
   {
-    name: "Offline Backup Setup Support",
+    name: "Offline Backup Setup (Guided)",
     price: 5999,
-    description: "1-on-1 remote setup for secure offline backups",
+    description: "1-on-1 guidance to help users configure offline backups on their own device. No data access.",
   },
 ];
 
