@@ -15,7 +15,7 @@ const plans = [
     features: [
       "macOS only (Big Sur 11+)",
       "Limited to first 20 users",
-      "500 MB storage",
+      "500 MB Local Encrypted Capacity",
       "1 Device (macOS)",
       "AES-256 encryption",
       "24 Hours audit logs",
@@ -85,7 +85,7 @@ const plans = [
 
 const planComparisonData = [
   { feature: "Availability", free: "Limited (First 20)", personal: "Unlimited", pro: "Unlimited", enterprise: "Unlimited" },
-  { feature: "Storage", free: "500 MB", personal: "500 MB", pro: "Unlimited", enterprise: "Unlimited" },
+  { feature: "Local Encrypted Capacity", free: "500 MB", personal: "500 MB", pro: "Unlimited", enterprise: "Unlimited" },
   { feature: "Devices", free: "1 (macOS)", personal: "1", pro: "3 Devices", enterprise: "Bulk License" },
   { feature: "Encryption", free: "AES-256", personal: "AES-256", pro: "AES-256", enterprise: "AES-256" },
   { feature: "Secure Notes", free: false, personal: false, pro: "Unlimited", enterprise: "Unlimited" },
@@ -157,7 +157,7 @@ export default function PremiumPage() {
             </div>
             <div>
               <p className="font-medium">Free macOS Trial Available</p>
-              <p className="text-sm text-muted-foreground">Limited to first 20 users. 500 MB storage, 1 device, basic features included.</p>
+              <p className="text-sm text-muted-foreground">Limited to first 20 users. 500 MB local encrypted capacity, 1 device, basic features included.</p>
             </div>
           </div>
         </div>
