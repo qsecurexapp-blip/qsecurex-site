@@ -50,10 +50,10 @@ const cloudComparison = {
     "Monthly subscription fees",
   ],
   qsecurex: [
-    "Hack-proof offline storage",
-    "Zero-knowledge privacy architecture",
-    "Instant access, anywhere",
-    "One-time payment, lifetime ownership",
+    "Offline, device-only encryption",
+    "User-controlled key derivation",
+    "Access files directly on your device",
+    "One-time payment, lifetime license",
   ],
 };
 
@@ -153,14 +153,14 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="text-center lg:text-left">
               <Badge className="mb-6 text-sm px-4 py-1.5 bg-primary/20 border-primary/40 text-primary" data-testid="badge-hero">
-                #1 Rated Offline Privacy App 2025
+                Offline Encryption Software (2025)
               </Badge>
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tighter mb-8 leading-tight text-foreground">
                 Your Data.{" "}
                 <span className="gradient-text-animated">Under Your Control.</span>
               </h1>
               <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                Military-grade encryption that lives on your device, not on a server.
+                Military-grade encryption performed locally on your device — no servers involved.
               </p>
               <p className="text-lg font-semibold text-primary mb-10 max-w-2xl mx-auto lg:mx-0">
                 No Cloud. No Tracking. Just Privacy.
@@ -261,25 +261,11 @@ export default function HomePage() {
             {/* File Encryption Text */}
             <div>
               <h2 className="text-4xl font-bold mb-6 text-foreground">
-                Secure File Storage
+                Local File Encryption
               </h2>
               <p className="text-lg text-muted-foreground mb-4 leading-relaxed">
-                Upload any file and watch it get instantly encrypted. Your documents, photos, and archives are protected with end-to-end encryption.
+                Select any file and encrypt it instantly. Files are encrypted locally on your device using AES-256 before being written to disk.
               </p>
-              <ul className="space-y-3">
-                <li className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-primary shrink-0" />
-                  <span className="text-foreground">Unlimited file size</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-primary shrink-0" />
-                  <span className="text-foreground">Zero-knowledge architecture</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-primary shrink-0" />
-                  <span className="text-foreground">Instant access anytime</span>
-                </li>
-              </ul>
             </div>
 
             {/* File Lock Animation */}
@@ -340,7 +326,7 @@ export default function HomePage() {
                   <div className="p-2 rounded-lg bg-primary/10">
                     <Shield className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold">QSecureX Vault</h3>
+                  <h3 className="text-xl font-semibold">Local Encrypted Container</h3>
                 </div>
                 <ul className="space-y-4">
                   {cloudComparison.qsecurex.map((item, index) => (
@@ -365,15 +351,14 @@ export default function HomePage() {
                 New Feature
               </Badge>
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                Secure Messaging
+                Encrypted Message Transfer (Optional)
               </h2>
               <p className="text-xl text-muted-foreground mb-2">
                 Confidential comms. No metadata.
               </p>
               <p className="text-muted-foreground mb-8">
-                Need to share a password or sensitive file? Use our offline-ready
-                encrypted messaging protocol. Generates self-destructing secure
-                packets.
+                Share encrypted content using a local, peer-to-peer transfer method. 
+                Messages are encrypted locally and never stored on servers.
               </p>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
@@ -611,7 +596,7 @@ export default function HomePage() {
             Ready to reclaim your privacy?
           </h2>
           <p className="text-lg text-muted-foreground mb-8">
-            Join thousands of users who trust QSecureX with their most sensitive data.
+            Join thousands of users who use QSecureX to encrypt sensitive data on their own devices.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/register">
