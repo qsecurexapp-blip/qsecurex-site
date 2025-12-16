@@ -90,7 +90,7 @@ const planComparisonData = [
   { feature: "Encryption", free: "AES-256", personal: "AES-256", pro: "AES-256", enterprise: "AES-256" },
   { feature: "Secure Notes", free: false, personal: false, pro: "Unlimited", enterprise: "Unlimited" },
   { feature: "Tamper Alerts", free: false, personal: false, pro: true, enterprise: true },
-  { feature: "Secure Messaging", free: false, personal: false, pro: true, enterprise: true },
+  { feature: "Encrypted Message Transfer", free: false, personal: false, pro: true, enterprise: true },
   { feature: "Audit Logs", free: "24 Hours", personal: "24 Hours", pro: "Full History", enterprise: "Full History" },
   { feature: "Support", free: "None", personal: "Email", pro: "Priority", enterprise: "Dedicated Agent" },
 ];
@@ -101,7 +101,7 @@ const competitorData = [
   { feature: "Ease of Use", qsecurex: { text: "Simple UI", status: "good" }, nordlocker: { text: "Good", status: "good" }, cryptomator: { text: "Good", status: "good" }, veracrypt: { text: "Complex / Techy", status: "bad" } },
   { feature: "Tamper Alerts", qsecurex: { text: "Yes", status: "good" }, nordlocker: { text: "No", status: "bad" }, cryptomator: { text: "No", status: "bad" }, veracrypt: { text: "No", status: "bad" } },
   { feature: "Secure Notes", qsecurex: { text: "Yes", status: "good" }, nordlocker: { text: "No", status: "bad" }, cryptomator: { text: "No", status: "bad" }, veracrypt: { text: "No", status: "bad" } },
-  { feature: "Secure Messaging", qsecurex: { text: "Yes", status: "good" }, nordlocker: { text: "No", status: "bad" }, cryptomator: { text: "No", status: "bad" }, veracrypt: { text: "No", status: "bad" } },
+  { feature: "Encrypted Message Transfer", qsecurex: { text: "Yes", status: "good" }, nordlocker: { text: "No", status: "bad" }, cryptomator: { text: "No", status: "bad" }, veracrypt: { text: "No", status: "bad" } },
   { feature: "Audit Logs", qsecurex: { text: "Full History", status: "good" }, nordlocker: { text: "Limited", status: "bad" }, cryptomator: { text: "No", status: "bad" }, veracrypt: { text: "No", status: "bad" } },
   { feature: "Device Binding", qsecurex: { text: "Local Hardware Identifier (No Tracking)", status: "good" }, nordlocker: { text: "Login based", status: "bad" }, cryptomator: { text: "No", status: "bad" }, veracrypt: { text: "No", status: "bad" } },
   { feature: "Support", qsecurex: { text: "Priority", status: "good" }, nordlocker: { text: "Standard", status: "good" }, cryptomator: { text: "Community", status: "warn" }, veracrypt: { text: "Community", status: "warn" } },
