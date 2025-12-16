@@ -16,7 +16,7 @@ const features = [
   {
     title: "Strong Encryption",
     description:
-      "Your files are protected with AES-256 encryption. Virtually impossible to crack.",
+      "Your files are protected with AES-256 encryption, designed to resist modern cryptographic attacks.",
     icon: Lock,
     color: "text-primary",
     bgColor: "bg-primary/10",
