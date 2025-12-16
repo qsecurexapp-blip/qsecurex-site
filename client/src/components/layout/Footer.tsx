@@ -46,7 +46,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
-              Military-grade encryption that lives on your device. No Cloud. No Tracking. Just Privacy.
+              Local-only encryption software. No cloud. No server-side data handling.
             </p>
             <div className="flex flex-col gap-4 text-sm text-muted-foreground">
               <a
